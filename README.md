@@ -213,5 +213,5 @@ var modify = {indexes: indexes, props: props};
 ```
 
 #Live example
-[Simple live example](https://rawgit.com/jrussi/complexMathLibrary/master/example1.html)
+[Simple live example](https://rawgit.com/jrussi/corelDraw2HTMLCanvas/master/example1.html)
 
