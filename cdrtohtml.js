@@ -34,8 +34,8 @@ graph.getLimits = function (el,escala) {
 //////////////////////////////////////////////////////////////////////////////////////////
 graph.getSelected = function(el,offsetX,offsetY,escala,x1,y1,x2,y2) {
 	// auto find offsets
-	var selecionados = [];
-	var grupo = 0;
+	var gruposSelecionados = [];
+	var indicesSelecionados = [];
 	
 	var keys = Object.keys(el);
 	for (var ii=0;ii<keys.length;ii++){
@@ -50,12 +50,16 @@ graph.getSelected = function(el,offsetX,offsetY,escala,x1,y1,x2,y2) {
 			}
 		}
 		if (selected){
-			selecionados.push(el[keys[ii]].grupo);
+			gruposSelecionados.push(el[keys[ii]].grupo);
+			indicesSelecionados.push(keys[ii]);
 		}
 	}
-	console.log(selecionados);
+	console.log("Groups selected:");
+	console.log(gruposSelecionados);
+	console.log("Indexes selected:");
+	console.log(gruposSelecionados);
 	
-	return selecionados;
+	return gruposSelecionados;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -88,6 +92,12 @@ graph.drawOnCanvas = function(ctx, el, offsetX, offsetY, escala, modify) {
 		
 		ctx.strokeStyle = el[ii].strokeStyle;
 
+		if ("lineStyle" in el[ii]){
+			ctx.setLineDash(el[ii].lineStyle);
+		}
+		else{
+			ctx.setLineDash([1,0]);
+		}
 		switch (el[ii].type){
 			case 'curveLine': {
 				ctx.lineWidth = escala*el[ii].outline;
@@ -147,8 +157,11 @@ graph.drawOnCanvas = function(ctx, el, offsetX, offsetY, escala, modify) {
 				ctx.fillStyle = el[ii].fillStyle;
 				var rotationRads = 0;
 				ctx.strokeStyle = el[ii].strokeStyle;
-				ctx.ellipse(offsetX+escala*el[ii].center[0], offsetY-escala*el[ii].center[1],
-				escala*el[ii].radius[0], escala*el[ii].radius[1], rotationRads, 0, 2 * Math.PI);
+				try{
+					ctx.ellipse(offsetX+escala*el[ii].center[0], offsetY-escala*el[ii].center[1],
+						escala*el[ii].radius[0], escala*el[ii].radius[1], rotationRads, 0, 2 * Math.PI);
+				}
+				catch(err){console.log("ellipse not supported")}
 				ctx.fill();
 				ctx.stroke();
 				break;
@@ -184,8 +197,7 @@ graph.drawSVG = function(svg, el, offsetX, offsetY, escala, modify) {
 			}
 		}
 		
-		ctx.strokeStyle = el[ii].strokeStyle;
-
+		//ctx.strokeStyle = el[ii].strokeStyle;
 		switch (el[ii].type){
 			case 'curveLine': {
 				var elem = document.createElementNS(NS,"polyline");
@@ -264,6 +276,12 @@ graph.drawSVG = function(svg, el, offsetX, offsetY, escala, modify) {
 			default: {
 				console.log("Tipo não encontrado");
 			}
+		}
+		if ("lineStyle" in el[ii]){
+			elem.style.strokeDasharray = el[ii].lineStyle.join(",");
+		}
+		else{
+			elem.style.strokeDasharray = "1, 0";
 		}
 	}
 }
